@@ -16,10 +16,10 @@ int main(int argc, char * argv[])
 	}
 
 	u_char* targetMac = get_target_mac(argv[1], argv[2], argv[3]);
-	if (targetMac == NULL)
-		return -1;
+	if (targetMac == NULL) return -1;
 
 	int attack = arp_reply_attack(argv[1], argv[2], argv[3], targetMac);
+
 	if (attack == 0)
 	{
 		printf("Attack success\n");

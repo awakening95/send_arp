@@ -15,8 +15,7 @@ u_char* get_target_mac(char * interface, char * senderIp, char * targetIp)
 
 	while (true) // ARP reply capture
 	{
-		if(send_arp_req(interface, senderIp, targetIp) == -1)
-			return NULL;
+		if(send_arp_req(interface, senderIp, targetIp) == -1) return NULL;
 
 		struct pcap_pkthdr* header;
 		const u_char* packet;
@@ -30,21 +29,21 @@ u_char* get_target_mac(char * interface, char * senderIp, char * targetIp)
 			return NULL;
 		}
 
-		struct ether_header *etherHeader;
-		etherHeader = (struct ether_header *)packet;
-
+		struct ether_header *etherHeader = (struct ether_header *)packet;
 		uint16_t etherType = ntohs(etherHeader->ether_type);
 
-		packet += sizeof(struct ether_header);
-
-		struct ether_arp *arpHeader;
-		arpHeader = (struct ether_arp *)packet;
-
-		if(etherType == ETHERTYPE_ARP && ntohs(arpHeader->ea_hdr.ar_op) == 0x0002)
+		if (etherType == ETHERTYPE_ARP)
 		{
-			for(int i = 0; i < 6; i++)
-				targetMac[i] = arpHeader->arp_sha[i];
-			break;
+			packet += sizeof(struct ether_header);
+
+			struct ether_arp *arpHeader;
+			arpHeader = (struct ether_arp *)packet;
+
+			if(ntohs(arpHeader->ea_hdr.ar_op) == 0x0002) // ARP Reply 패킷일 경우
+			{
+				for(int i = 0; i < 6; i++) targetMac[i] = arpHeader->arp_sha[i]; // 패킷의 출발지 MAC 주소를 targetMac에 할당
+				break;
+			}
 		}
 	}
 	pcap_close(handle);

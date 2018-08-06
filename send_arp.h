@@ -12,6 +12,6 @@
 #include <stdlib.h>
 
 int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* targetMac);
-const u_char* get_my_mac_address(char * interface);
+u_char* get_my_mac_address(char * interface);
 u_char* get_target_mac(char * interface, char * senderIp, char * targetIp);
 int send_arp_req(char * interface, char * senderIp, char * targetIp);

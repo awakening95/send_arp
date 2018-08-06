@@ -1,6 +1,6 @@
 #include "send_arp.h"
 
-int send_arp_req(char * interface, char * senderIp, char * targetIp)
+int send_arp_req(char* interface, char* senderIp, char* targetIp)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t* handle = pcap_open_live(interface, BUFSIZ, 1, 1000, errbuf);
@@ -10,17 +10,16 @@ int send_arp_req(char * interface, char * senderIp, char * targetIp)
 		fprintf(stderr, "couldn't open device %s: %s\n", interface, errbuf);
 		return -1;
 	}
+
 	// START : Set packet configuration
 	// START : Set Ethernet header
 	u_char* packet = (u_char*)calloc(60 ,sizeof(u_char));
 	u_char* requestPacket = packet;
 
-	struct ether_header *etherHeader;
-	etherHeader = (ether_header *)requestPacket;
-	const u_char *mac = get_my_mac_address(interface);
+	struct ether_header *etherHeader = (ether_header *)requestPacket;
 
-	if (mac == NULL)
-		return -1;
+	u_char *mac = get_my_mac_address(interface);
+	if (mac == NULL) return -1;
 
 	for(int i = 0; i < 6; i++)
 	{
@@ -29,13 +28,11 @@ int send_arp_req(char * interface, char * senderIp, char * targetIp)
 	}
 
 	etherHeader->ether_type = htons(ETHERTYPE_ARP); // htons()함수는 short intger(일반적으로 2byte)데이터를 네트워크 byte order로 변경
-
 	requestPacket += sizeof(struct ether_header);
 	// END : Set Ethernet header
 
 	// START : Set ARP header
-	struct ether_arp *arpHeader;
-	arpHeader = (ether_arp *)requestPacket;
+	struct ether_arp *arpHeader = (ether_arp*)requestPacket;
 
 	arpHeader->ea_hdr.ar_hrd = htons(0x0001); // 하드웨어 주소 타입, 0x0001 == ETHERNET
 	arpHeader->ea_hdr.ar_pro = htons(ETHERTYPE_IP); // 프로토콜 주소 타입
@@ -51,7 +48,7 @@ int send_arp_req(char * interface, char * senderIp, char * targetIp)
 
 	struct sockaddr_in senderAddr, targetAddr;
 	
-	if(0 == inet_aton(senderIp, &senderAddr.sin_addr) || 0 == inet_aton(targetIp, &targetAddr.sin_addr)) // inet_aton : Dotted-DecimalNotation을 Big-Endian 32 bit 값으로 변환
+	if(inet_pton(AF_INET, senderIp, &senderAddr.sin_addr) == 0 || inet_pton(AF_INET, targetIp, &targetAddr.sin_addr) == 0) // convert IPv4 addresses from text to binary form
 	{
 		printf("syntax: send_arp <interface> <sender ip> <target ip>\n");
 		printf("sample: send_arp wlan0 192.168.10.2 192.168.10.1\n");
