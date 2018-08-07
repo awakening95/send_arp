@@ -17,7 +17,6 @@ int send_arp_req(char* interface, char* senderIp, char* targetIp)
 	u_char* requestPacket = packet;
 
 	struct ether_header *etherHeader = (ether_header *)requestPacket;
-
 	u_char *mac = get_my_mac_address(interface);
 	if (mac == NULL) return -1;
 

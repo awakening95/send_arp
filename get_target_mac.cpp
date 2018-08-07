@@ -1,6 +1,6 @@
 #include "send_arp.h"
 
-u_char* get_target_mac(char * interface, char * senderIp, char * targetIp)
+u_char* get_target_mac(char* interface, char* senderIp, char* targetIp)
 {
 	u_char* targetMac = (u_char*)malloc(sizeof(u_char) * 6);
 
@@ -29,15 +29,14 @@ u_char* get_target_mac(char * interface, char * senderIp, char * targetIp)
 			return NULL;
 		}
 
-		struct ether_header *etherHeader = (struct ether_header *)packet;
+		struct ether_header* etherHeader = (struct ether_header *)packet;
 		uint16_t etherType = ntohs(etherHeader->ether_type);
 
 		if (etherType == ETHERTYPE_ARP)
 		{
 			packet += sizeof(struct ether_header);
 
-			struct ether_arp *arpHeader;
-			arpHeader = (struct ether_arp *)packet;
+			struct ether_arp* arpHeader = (struct ether_arp*)packet;
 
 			if(ntohs(arpHeader->ea_hdr.ar_op) == 0x0002) // ARP Reply 패킷일 경우
 			{

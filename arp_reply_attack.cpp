@@ -15,8 +15,8 @@ int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* 
 	u_char* requestPacket = packet;
 
 	struct ether_header* etherHeader = (ether_header *)requestPacket;
-	u_char *mac = get_my_mac_address(interface);
 
+	u_char *mac = get_my_mac_address(interface);
 	if (mac == NULL) return -1;
 
 	for(int i = 0; i < 6; i++)
@@ -30,11 +30,11 @@ int arp_reply_attack(char* interface, char * senderIp, char * targetIp, u_char* 
 	requestPacket += sizeof(struct ether_header);
 	struct ether_arp *arpHeader = (ether_arp *)requestPacket;
 
-	arpHeader->ea_hdr.ar_hrd = htons(0x0001);
-	arpHeader->ea_hdr.ar_pro = htons(ETHERTYPE_IP);
-	arpHeader->ea_hdr.ar_hln = 6;
-	arpHeader->ea_hdr.ar_pln = 4;
-	arpHeader->ea_hdr.ar_op = htons(0x0002);
+	arpHeader->ea_hdr.ar_hrd = htons(0x0001); // 하드웨어 주소 타입, 0x0001 == ETHERNET
+	arpHeader->ea_hdr.ar_pro = htons(ETHERTYPE_IP); // 프로토콜 주소 타입
+	arpHeader->ea_hdr.ar_hln = 6; // 하드웨어 주소 길이
+	arpHeader->ea_hdr.ar_pln = 4; // 프로토콜 주소 길이
+	arpHeader->ea_hdr.ar_op = htons(0x0002); // 패킷 종류 ARP request : 0x0001, ARP reply : 0x0002         
 
 	for(int i = 0; i < 6; i++)
 	{
